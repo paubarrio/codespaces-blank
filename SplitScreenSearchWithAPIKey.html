@@ -1,0 +1,98 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Split-Screen Search</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .section {
+            border: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        .search-bar {
+            margin-bottom: 10px;
+            width: 80%;
+        }
+        .results {
+            width: 80%;
+            height: 50%;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <div class="section" id="section1">
+        <input type="text" class="search-bar" id="search1" placeholder="Search here..." onkeydown="search(event, 'results1')">
+        <div class="results" id="results1">Results will appear here...</div>
+    </div>
+    <div class="section" id="section2">
+        <input type="text" class="search-bar" id="search2" placeholder="Search here..." onkeydown="search(event, 'results2')">
+        <div class="results" id="results2">Results will appear here...</div>
+    </div>
+    <div class="section" id="section3">
+        <input type="text" class="search-bar" id="search3" placeholder="Search here..." onkeydown="search(event, 'results3')">
+        <div class="results" id="results3">Results will appear here...</div>
+    </div>
+    <div class="section" id="section4">
+        <input type="text" class="search-bar" id="search4" placeholder="Search here..." onkeydown="search(event, 'results4')">
+        <div class="results" id="results4">Results will appear here...</div>
+    </div>
+    <script>
+        const API_KEY = 'AIzaSyBELyd2yxL8Ob7zh-Lxn8rdDaas9DnnqxY'; // Your API Key
+        const SEARCH_ENGINE_ID = '84af71d217474480c'; // Your Search Engine ID
+
+        async function search(event, resultsId) {
+            if (event.key === "Enter") {
+                const query = event.target.value;
+                const resultsDiv = document.getElementById(resultsId);
+
+                // Display loading message
+                resultsDiv.innerHTML = "Loading...";
+
+                // Fetch results from Google Custom Search API
+                const url = `https://www.googleapis.com/customsearch/v1?q=${encodeURIComponent(query)}&key=${API_KEY}&cx=${SEARCH_ENGINE_ID}`;
+                try {
+                    const response = await fetch(url);
+                    const data = await response.json();
+
+                    // Clear previous results
+                    resultsDiv.innerHTML = "";
+
+                    // Display the results
+                    if (data.items) {
+                        data.items.forEach(item => {
+                            const resultItem = document.createElement("div");
+                            resultItem.innerHTML = `
+                                <p><a href="${item.link}" target="_blank">${item.title}</a></p>
+                                <p>${item.snippet}</p>
+                            `;
+                            resultsDiv.appendChild(resultItem);
+                        });
+                    } else {
+                        resultsDiv.innerHTML = "No results found.";
+                    }
+                } catch (error) {
+                    resultsDiv.innerHTML = "Error fetching results.";
+                }
+            }
+        }
+    </script>
+</body>
+</html>
